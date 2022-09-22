@@ -2,45 +2,51 @@
 export default {
   data() {
     return {
-      url: "",
+      urlInput: "",
       urlList: [],
       payment: {}
     }
   },
 
   methods: {
-    getLedger() {
-      let paramIndex = this.url.indexOf("?");
-      let rawUrl = (paramIndex > -1) ? this.url.substring(0, paramIndex) : this.url;
-      let requestUrl = `/ledger?url=${rawUrl}`;
+    getLedger() { 
+      let url = new URL(this.urlInput);
+      this.urlInput = "";
+      if (this.urlList.includes(url.href)) { return; }
+      this.urlList.push(url.href);
+
+      let requestUrl = `api${url.pathname}/players_sessions`;
 
       let xhttp = new XMLHttpRequest();
       xhttp.open("GET", requestUrl, true);
       xhttp.onreadystatechange = (function (res, data) {
         return function () {
           if (res.readyState === XMLHttpRequest.DONE && res.status === 200) {
-            data.payment = data.updatePayment(res.responseText);
+            data.updatePayment(res.responseText);
           }
         }
       })(xhttp, this);
       xhttp.send();
-
-      this.url = "";
     },
 
     updatePayment(res) {
-      let data = JSON.parse(res).playersInfos;
-      let players = data.playersInfos
+      let data = JSON.parse(res);
+      let players = data.playersInfos;
       for (let player of Object.values(players)) {
         if (player.net != 0) {
-          if (player.names[0] in payment) {
-            payment[player.names[0]] += player.net;
+          if (player.names[0] in this.payment) {
+            this.payment[player.names[0]] += player.net;
           }
           else {
-            payment[player.names[0]] = player.net;
+            this.payment[player.names[0]] = player.net;
           }
         }
       }
+    },
+
+    reset() {
+      this.payments = {};
+      this.urlList = [];
     }
   },
 
@@ -52,8 +58,8 @@ export default {
         let res = [];
         let tmp = JSON.parse(JSON.stringify(this.payment))
         while (Object.keys(tmp).length > 0){
-          let min = Object.keys(tmp).reduce((a, b) => tmp[a] > tmp[b] ? a : b);
-          let max = Object.keys(tmp).reduce((a, b) => tmp[a] > tmp[b] ? b : a);
+          let max = Object.keys(tmp).reduce((a, b) => tmp[a] > tmp[b] ? a : b);
+          let min = Object.keys(tmp).reduce((a, b) => tmp[a] > tmp[b] ? b : a);
           let amt = Math.min(tmp[max], Math.abs(tmp[min]))
           tmp[max] -= amt
           tmp[min] += amt
@@ -65,6 +71,12 @@ export default {
           }
           res.push(`${min} pays ${max} $${(amt / 100).toFixed(2)}`);
         }
+
+        if (res.length !== 0) {
+          res.push("\nGames played:");
+          res.push.apply(res, this.urlList);
+        }
+
         return res.join("\n");
       }
     }
@@ -72,12 +84,21 @@ export default {
 }
 </script>
 
+
+<style scoped>
+#payments {
+  margin-top: 20px;
+  white-space: pre-wrap;
+}
+</style>
+
+
 <template>
   <div>
     <h1>Enter Poker Now URL below:</h1>
-    <input v-model="url" type="text" placeholder="Poker Now URL">
+    <input v-model="urlInput" type="text" placeholder="Poker Now URL">
     <button @click="getLedger">Add</button>
     <button @click="reset">Reset</button>
   </div>
-  <div style="marginTop:20px">{{ allPayments }}</div>
+  <div id="payments">{{ allPayments }}</div>
 </template>
