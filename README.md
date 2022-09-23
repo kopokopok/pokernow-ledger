@@ -1,6 +1,6 @@
 # Poker Now Payments
 
-This template should help get you started developing with Vue 3 in Vite.
+https://kopokopok.github.io/pokernow-payments/
 
 ## Project Setup
 
