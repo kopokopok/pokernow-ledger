@@ -15,7 +15,8 @@ export default {
       if (this.urlList.includes(url.href)) { return; }
       this.urlList.push(`${url.origin}${url.pathname}`);
 
-      let requestUrl = `api${url.pathname}/players_sessions`;
+      let requestUrl = `${import.meta.env.VITE_API_ENDPOINT}${url.origin}${url.pathname}/players_sessions`;
+      console.log(requestUrl)
 
       let xhttp = new XMLHttpRequest();
       xhttp.open("GET", requestUrl, true);
@@ -62,16 +63,16 @@ export default {
       } else {
         let res = [];
         let tmp = JSON.parse(JSON.stringify(this.payment))
-        while (Object.keys(tmp).length > 0){
+        while (Object.keys(tmp).length > 0) {
           let max = Object.keys(tmp).reduce((a, b) => tmp[a] > tmp[b] ? a : b);
           let min = Object.keys(tmp).reduce((a, b) => tmp[a] > tmp[b] ? b : a);
           let amt = Math.min(tmp[max], Math.abs(tmp[min]))
           tmp[max] -= amt
           tmp[min] += amt
-          if (tmp[max] === 0){
+          if (tmp[max] === 0) {
             delete tmp[max]
           }
-          if (tmp[min] === 0){
+          if (tmp[min] === 0) {
             delete tmp[min]
           }
           res.push(`${min} pays ${max} $${(amt / 100).toFixed(2)}`);

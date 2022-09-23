@@ -16,9 +16,9 @@ export default defineConfig({
       "/api": {
         target: "https://www.pokernow.club",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        rewrite: (path) => path.replace(/^\/api/, "")
       }
     }
   },
-  publicPath: process.env.NODE_ENV === 'production' ? '/pokernow-payments/' : '/'
+  base: "./"
 })
