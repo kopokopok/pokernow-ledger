@@ -20,5 +20,5 @@ export default defineConfig({
       }
     }
   },
-  publicPath: process.env.NODE_ENV === 'production' ? '/pokernow-ledger/' : '/'
+  publicPath: process.env.NODE_ENV === 'production' ? '/pokernow-payments/' : '/'
 })
