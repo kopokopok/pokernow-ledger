@@ -141,7 +141,7 @@ button {
 
 
 <template>
-  <h1>Poker Now Payments</h1>
+  <h2>Poker Now Payments</h2>
   <div class="center">
     <!-- <div class="form-floating row-cols-auto">
       <input v-model="urlInput" v-on:keyup.enter="getLedger" type="text" class="form-control" id="floatingInput" placeholder="Poker Now URL">
