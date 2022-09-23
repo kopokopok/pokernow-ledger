@@ -13,7 +13,7 @@ export default {
       let url = new URL(this.urlInput);
       this.urlInput = "";
       if (this.urlList.includes(url.href)) { return; }
-      this.urlList.push(url.href);
+      this.urlList.push(`${url.origin}${url.pathname}`);
 
       let requestUrl = `api${url.pathname}/players_sessions`;
 
@@ -45,8 +45,13 @@ export default {
     },
 
     reset() {
-      this.payments = {};
+      this.payment = {};
       this.urlList = [];
+    },
+
+    async copyAllPayments() {
+      await navigator.clipboard.writeText(this.allPayments);
+      alert("Copied");
     }
   },
 
@@ -73,7 +78,7 @@ export default {
         }
 
         if (res.length !== 0) {
-          res.push("\nGames played:");
+          res.push(`\nGame${this.urlList.length === 1 ? "" : "s"} played:`);
           res.push.apply(res, this.urlList);
         }
 
@@ -87,18 +92,73 @@ export default {
 
 <style scoped>
 #payments {
-  margin-top: 20px;
   white-space: pre-wrap;
+  text-align: left;
+}
+
+#copyBtn {
+  padding: 2px 6px;
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.snippet {
+  margin-top: 20px;
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+}
+
+button {
+  position: relative;
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 20px;
+  color: #333;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #eee;
+  background-image: linear-gradient(#fcfcfc,#eee);
+  border: 1px solid #d5d5d5;
+  border-radius: 3px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-appearance: none;
 }
 </style>
 
 
 <template>
-  <div>
-    <h1>Enter Poker Now URL below:</h1>
-    <input v-model="urlInput" type="text" placeholder="Poker Now URL">
-    <button @click="getLedger">Add</button>
-    <button @click="reset">Reset</button>
+  <h1>Poker Now Payments</h1>
+  <div class="center">
+    <!-- <div class="form-floating row-cols-auto">
+      <input v-model="urlInput" v-on:keyup.enter="getLedger" type="text" class="form-control" id="floatingInput" placeholder="Poker Now URL">
+      <label for="floatingInput">Poker Now URL</label>
+    </div> -->
+    <input v-model="urlInput" v-on:keyup.enter="getLedger" type="text" placeholder="Poker Now URL">
+    <button @click="getLedger" title="Add a ledger">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+    <button @click="reset" title="Reset">
+      <i class="fa-solid fa-rotate-left"></i>
+    </button>
   </div>
-  <div id="payments">{{ allPayments }}</div>
+  <div class="snippet">
+    <button v-if="allPayments" @click="copyAllPayments" id="copyBtn" title="Copy">
+      <i class="fa-regular fa-copy"></i>
+    </button>
+    <div id="payments">{{ allPayments }}</div>
+  </div>
 </template>
